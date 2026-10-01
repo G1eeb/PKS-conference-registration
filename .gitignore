@@ -59,3 +59,10 @@ logs/
 
 # ===== Docker =====
 # volume conference_pgdata хранится вне репозитория, игнорировать не нужно
+
+./.DS_Store
+./src/.DS_Store
+./src/main/.DS_Store
+./src/main/java/.DS_Store
+./src/main/java/ru/.DS_Store
+./src/main/java/ru/mirea/.DS_Store
