@@ -27,19 +27,27 @@ public class RegistrationService {
 
     public Registration create(Long participantId, Long conferenceId, RegistrationStatus status) {
         Participant p = partRepo.findById(participantId)
-                .orElseThrow(() -> new BusinessException("Участник с id=" + participantId + " не существует"));
-        Conference c = confRepo.findById(conferenceId)
-                .orElseThrow(() -> new BusinessException("Конференция с id=" + conferenceId + " не существует"));
+                .orElseThrow(() -> new BusinessException(
+                        "Участник с id=" + participantId + " не существует"));
 
-        if (c.getEndDate().isBefore(LocalDate.now()))
-            throw new BusinessException("Нельзя регистрироваться на завершённую конференцию: " + c.getTitle());
+        Conference c = confRepo.findById(conferenceId)
+                .orElseThrow(() -> new BusinessException(
+                        "Конференция с id=" + conferenceId + " не существует"));
+
+        if (c.getEndDate().isBefore(LocalDate.now())) {
+            throw new BusinessException(
+                    "Нельзя регистрироваться на завершённую конференцию: " + c.getTitle());
+        }
 
         regRepo.findByParticipantAndConference(participantId, conferenceId).ifPresent(r -> {
-            throw new BusinessException("Участник " + p.getFullName() +
+            throw new BusinessException(
+                    "Участник " + p.getFullName() +
                     " уже зарегистрирован на конференцию «" + c.getTitle() + "»");
         });
 
-        if (status == null) status = RegistrationStatus.CREATED;
+        if (status == null) {
+            status = RegistrationStatus.CREATED;
+        }
 
         Registration reg = new Registration(participantId, conferenceId, status);
         Registration saved = regRepo.save(reg);
@@ -50,7 +58,8 @@ public class RegistrationService {
 
     public Registration getById(Long id) {
         return regRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Регистрация с id=" + id + " не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Регистрация с id=" + id + " не найдена"));
     }
 
     public List<Registration> getAll() {
@@ -58,43 +67,58 @@ public class RegistrationService {
     }
 
     public Registration updateStatus(Long id, RegistrationStatus newStatus) {
+        if (newStatus == null) {
+            throw new BusinessException("Новый статус не указан");
+        }
         Registration reg = getById(id);
         RegistrationStatus current = reg.getStatus();
-        if (current == newStatus) return reg;
+
+        if (current == newStatus) {
+            return reg;
+        }
+
         Set<RegistrationStatus> allowed = ALLOWED_TRANSITIONS.getOrDefault(current, Set.of());
-        if (!allowed.contains(newStatus))
-            throw new BusinessException("Недопустимый переход статуса: " + current + " → " + newStatus);
+        if (!allowed.contains(newStatus)) {
+            throw new BusinessException(
+                    "Недопустимый переход статуса: " + current + " → " + newStatus);
+        }
+
         reg.setStatus(newStatus);
-        if (!regRepo.update(reg))
+        if (!regRepo.update(reg)) {
             throw new EntityNotFoundException("Регистрация с id=" + id + " не найдена");
+        }
         return reg;
     }
 
     public Registration update(Registration reg) {
-        if (reg.getId() == null) throw new BusinessException("ID регистрации не указан");
-        if (!regRepo.update(reg))
+        if (reg.getId() == null) {
+            throw new BusinessException("ID регистрации не указан");
+        }
+        if (!regRepo.update(reg)) {
             throw new EntityNotFoundException("Регистрация с id=" + reg.getId() + " не найдена");
+        }
         return reg;
     }
 
     public void delete(Long id) {
-        if (!regRepo.deleteById(id))
+        if (!regRepo.deleteById(id)) {
             throw new EntityNotFoundException("Регистрация с id=" + id + " не найдена");
+        }
     }
 
     public List<Registration> searchByParticipantName(String query) {
         String q = query.toLowerCase();
         return regRepo.findAll().stream()
-                .filter(r -> r.getParticipantName() != null &&
-                             r.getParticipantName().toLowerCase().contains(q))
+                .filter(r -> r.getParticipantName() != null
+                          && r.getParticipantName().toLowerCase().contains(q))
                 .collect(Collectors.toList());
     }
 
     public List<Registration> searchByConferenceTitle(String query) {
         String q = query.toLowerCase();
         return regRepo.findAll().stream()
-                .filter(r -> r.getConferenceTitle() != null &&
-                             r.getConferenceTitle().toLowerCase().contains(q))
+                .filter(r -> r.getConferenceTitle() != null
+                          && r.getConferenceTitle().toLowerCase().contains(q))
                 .collect(Collectors.toList());
     }
 
@@ -122,10 +146,45 @@ public class RegistrationService {
                 .collect(Collectors.toList());
     }
 
-    // Вспомогательный доступ для статистики (используется в коммите 3)
     public RegistrationRepository getRegistrationRepository() { return regRepo; }
-    public ParticipantRepository getParticipantRepository()   { return partRepo; }
-    public ConferenceRepository getConferenceRepository()     { return confRepo; }
+    public ParticipantRepository  getParticipantRepository()   { return partRepo; }
+    public ConferenceRepository   getConferenceRepository()    { return confRepo; }
 
-    // getStatistics() будет добавлен в КОММИТЕ 3 (Участник 2)
+    public Map<String, Object> getStatistics() {
+        List<Registration> all = regRepo.findAll();
+
+        long totalParticipants  = partRepo.findAll().size();
+        long totalConferences   = confRepo.findAll().size();
+        long totalRegistrations = all.size();
+
+        long active = all.stream()
+                .filter(r -> r.getStatus() == RegistrationStatus.CONFIRMED
+                          || r.getStatus() == RegistrationStatus.PAID)
+                .count();
+
+        long attended = all.stream()
+                .filter(r -> r.getStatus() == RegistrationStatus.ATTENDED)
+                .count();
+
+        long cancelled = all.stream()
+                .filter(r -> r.getStatus() == RegistrationStatus.CANCELLED)
+                .count();
+
+        Map<String, Long> byTrack = all.stream().collect(Collectors.groupingBy(
+                r -> confRepo.findById(r.getConferenceId())
+                        .map(c -> c.getTrack().name())
+                        .orElse("UNKNOWN"),
+                Collectors.counting()
+        ));
+
+        Map<String, Object> stats = new LinkedHashMap<>();
+        stats.put("Всего участников",          totalParticipants);
+        stats.put("Всего конференций",         totalConferences);
+        stats.put("Всего регистраций",         totalRegistrations);
+        stats.put("Активных (CONFIRMED+PAID)", active);
+        stats.put("Посетивших (ATTENDED)",     attended);
+        stats.put("Отменённых (CANCELLED)",    cancelled);
+        stats.put("Регистрации по трекам",     byTrack);
+        return stats;
+    }
 }
