@@ -194,7 +194,7 @@ conference-registration/
     │   ├── Main.java
     │   ├── exception/  (3 файла)
     │   ├── model/      (5 файлов)
-    │   ├── repository/ (4 файла)
+    │   ├── repository/ (4 файла) 
     │   ├── service/    (3 файла)
     │   ├── ui/         (3 файла)
     │   └── util/       (3 файла)
