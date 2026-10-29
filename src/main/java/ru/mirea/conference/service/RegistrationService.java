@@ -48,6 +48,9 @@ public class RegistrationService {
         if (status == null) {
             status = RegistrationStatus.CREATED;
         }
+        if (status != RegistrationStatus.CREATED) {
+            throw new BusinessException("Новая регистрация создаётся только со статусом CREATED. Затем статус изменяется по бизнес-правилам.");
+        }
 
         Registration reg = new Registration(participantId, conferenceId, status);
         Registration saved = regRepo.save(reg);
@@ -91,13 +94,24 @@ public class RegistrationService {
     }
 
     public Registration update(Registration reg) {
-        if (reg.getId() == null) {
-            throw new BusinessException("ID регистрации не указан");
+        if (reg.getId() == null) throw new BusinessException("ID регистрации не указан");
+        if (reg.getParticipantId() == null || !partRepo.findById(reg.getParticipantId()).isPresent())
+            throw new BusinessException("Выбранный участник не существует");
+        if (reg.getConferenceId() == null || !confRepo.findById(reg.getConferenceId()).isPresent())
+            throw new BusinessException("Выбранная конференция не существует");
+        Registration current = getById(reg.getId());
+        if (reg.getStatus() == null) throw new BusinessException("Статус не указан");
+        if (current.getStatus() != reg.getStatus()) {
+            Set<RegistrationStatus> allowed = ALLOWED_TRANSITIONS.getOrDefault(current.getStatus(), Set.of());
+            if (!allowed.contains(reg.getStatus()))
+                throw new BusinessException("Недопустимый переход статуса: " + current.getStatus() + " → " + reg.getStatus());
         }
-        if (!regRepo.update(reg)) {
-            throw new EntityNotFoundException("Регистрация с id=" + reg.getId() + " не найдена");
-        }
-        return reg;
+        regRepo.findByParticipantAndConference(reg.getParticipantId(), reg.getConferenceId()).ifPresent(other -> {
+            if (!other.getId().equals(reg.getId()))
+                throw new BusinessException("Этот участник уже зарегистрирован на выбранную конференцию");
+        });
+        if (!regRepo.update(reg)) throw new EntityNotFoundException("Регистрация не найдена");
+        return regRepo.findById(reg.getId()).orElse(reg);
     }
 
     public void delete(Long id) {
