@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.mirea.conference.fx.controller.ConferenceFormController" spacing="12" prefWidth="450" styleClass="dialog">
+ <padding><Insets top="20" right="22" bottom="20" left="22"/></padding><Label text="Данные конференции" styleClass="section-title"/>
+ <Label text="Название *"/><TextField fx:id="title" promptText="Название конференции"/>
+ <Label text="Трек *"/><ComboBox fx:id="track" maxWidth="Infinity" promptText="Выберите трек"/>
+ <Label text="Дата начала *"/><TextField fx:id="startDate" promptText="ГГГГ-ММ-ДД"/>
+ <Label text="Дата окончания *"/><TextField fx:id="endDate" promptText="ГГГГ-ММ-ДД"/>
+ <Label text="Место"/><TextField fx:id="location" promptText="Москва"/>
+ <HBox spacing="10" alignment="CENTER_RIGHT"><Button text="Отмена" onAction="#cancel"/><Button text="Сохранить" onAction="#save" styleClass="primary"/></HBox>
+</VBox>

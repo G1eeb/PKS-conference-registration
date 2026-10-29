@@ -1,0 +1,10 @@
+package ru.mirea.conference.fx.controller;
+import javafx.fxml.FXML; import javafx.scene.control.*; import javafx.stage.Stage; import ru.mirea.conference.fx.util.ValidationUtil; import ru.mirea.conference.model.*; import java.time.LocalDate; import java.time.format.DateTimeParseException;
+public class ConferenceFormController {
+ @FXML private TextField title,location,startDate,endDate; @FXML private ComboBox<ConferenceTrack> track; private Conference result;
+ @FXML private void initialize(){track.getItems().setAll(ConferenceTrack.values());}
+ public void setExisting(Conference c){result=new Conference(c.getId(),c.getTitle(),c.getTrack(),c.getStartDate(),c.getEndDate(),c.getLocation());title.setText(c.getTitle());location.setText(c.getLocation());startDate.setText(c.getStartDate().toString());endDate.setText(c.getEndDate().toString());track.setValue(c.getTrack());}
+ @FXML private void save(){try{String t=ValidationUtil.required(title.getText(),"Название",200),loc=ValidationUtil.optional(location.getText(),"Место",200);if(track.getValue()==null)throw new IllegalArgumentException("Выберите трек.");LocalDate from=parse(startDate.getText(),"Дата начала"),to=parse(endDate.getText(),"Дата окончания");if(to.isBefore(from))throw new IllegalArgumentException("Дата окончания не может быть раньше даты начала.");if(result==null)result=new Conference(t,track.getValue(),from,to,loc);else{result.setTitle(t);result.setTrack(track.getValue());result.setStartDate(from);result.setEndDate(to);result.setLocation(loc);}close();}catch(Exception e){Ui.error("Ошибка ввода",e.getMessage());}}
+ private LocalDate parse(String s,String field){try{return LocalDate.parse(ValidationUtil.required(s,field,10));}catch(DateTimeParseException e){throw new IllegalArgumentException(field+" должна быть в формате ГГГГ-ММ-ДД.");}}
+ @FXML private void cancel(){result=null;close();} private void close(){((Stage)title.getScene().getWindow()).close();} public Conference getResult(){return result;}
+}

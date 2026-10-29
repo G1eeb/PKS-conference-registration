@@ -56,7 +56,8 @@ mvn javafx:run
 Windows также:
 
 ```powershell
-.un-javafx.ps1
+.
+un-javafx.ps1
 ```
 
 JavaFX **не запускается в Docker**. Docker нужен для PostgreSQL; JavaFX запускается как обычное настольное приложение.
@@ -145,3 +146,34 @@ pom.xml
 8. Показать статистику.
 9. Выполнить экспорт XLSX и открыть полученный файл.
 
+
+
+
+
+# 1. Перейти в корень проекта
+cd "/d/Файлы/МИРЭА/Семестр 5/Программирование корпоративных систем/PKS-conference-registration-pr2"
+
+# 2. Переключить Java на 21 в текущей сессии bash
+export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-21.0.12.101-hotspot"
+export PATH="$JAVA_HOME/bin:$PATH"
+
+# 3. Проверить, что Maven видит Java 21 (в строке Java version должно быть 21.x)
+mvn -version
+
+# 4. Проверить, что PostgreSQL запущен и отвечает
+docker exec conference_postgres pg_isready -U postgres -d conference_db
+
+# 5. (Если из шага 4 ответ не "accepting connections") — поднять контейнер
+docker start conference_postgres
+
+# 6. Собрать проект (без clean, чтобы не ловить блокировку от NVIDIA Overlay)
+mvn compile
+
+# 7. (Опционально) Прогнать тесты
+mvn test
+
+# 8. Запустить приложение (терминал "зависнет", пока окно открыто — это нормально)
+mvn javafx:run
+
+# 9. (После закрытия окна) Остановить БД, если больше не нужна
+docker stop conference_postgres

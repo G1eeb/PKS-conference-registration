@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.mirea.conference.fx.controller.RegistrationFormController" spacing="12" prefWidth="480" styleClass="dialog">
+ <padding><Insets top="20" right="22" bottom="20" left="22"/></padding><Label text="Данные регистрации" styleClass="section-title"/>
+ <Label text="Участник *"/><ComboBox fx:id="participant" maxWidth="Infinity" promptText="Выберите участника"/>
+ <Label text="Конференция *"/><ComboBox fx:id="conference" maxWidth="Infinity" promptText="Выберите конференцию"/>
+ <Label text="Статус *"/><ComboBox fx:id="status" maxWidth="Infinity" promptText="Выберите статус"/>
+ <Label text="Для изменения статуса действуют бизнес-переходы: CREATED → CONFIRMED → PAID → ATTENDED; отмена разрешена до ATTENDED." wrapText="true" styleClass="hint"/>
+ <HBox spacing="10" alignment="CENTER_RIGHT"><Button text="Отмена" onAction="#cancel"/><Button text="Сохранить" onAction="#save" styleClass="primary"/></HBox>
+</VBox>

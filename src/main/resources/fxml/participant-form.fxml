@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.mirea.conference.fx.controller.ParticipantFormController" spacing="12" prefWidth="430" styleClass="dialog">
+ <padding><Insets top="20" right="22" bottom="20" left="22"/></padding><Label text="Данные участника" styleClass="section-title"/>
+ <Label text="ФИО *"/><TextField fx:id="fullName" promptText="Иванов Иван Иванович"/>
+ <Label text="Email *"/><TextField fx:id="email" promptText="name@example.com"/>
+ <Label text="Организация"/><TextField fx:id="organization" promptText="Название организации"/>
+ <HBox spacing="10" alignment="CENTER_RIGHT"><Button text="Отмена" onAction="#cancel"/><Button text="Сохранить" onAction="#save" styleClass="primary"/></HBox>
+</VBox>

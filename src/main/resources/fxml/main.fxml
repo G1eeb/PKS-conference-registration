@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.mirea.conference.fx.controller.MainController">
+ <top><VBox styleClass="top"><HBox spacing="14" alignment="CENTER_LEFT"><padding><Insets top="16" right="20" bottom="8" left="20"/></padding>
+   <Label text="Conference Registration" styleClass="app-title"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="connectionStatus" text="● проверка..." styleClass="connection"/>
+   <Button text="Обновить" onAction="#refreshAll" styleClass="secondary"/>
+ </HBox><Label text="JavaFX • JDBC • PostgreSQL" styleClass="subtitle"><HBox.margin><Insets left="20" bottom="12"/></HBox.margin></Label></VBox></top>
+ <center><TabPane tabClosingPolicy="UNAVAILABLE">
+  <Tab text="Участники"><VBox spacing="10"><padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+   <HBox spacing="8"><TextField fx:id="participantSearch" promptText="Поиск: ФИО, email, организация" HBox.hgrow="ALWAYS"/><ComboBox fx:id="participantOrgFilter" prefWidth="190" promptText="Организация"/><ComboBox fx:id="participantSort" prefWidth="150"/><Button text="Добавить" onAction="#addParticipant" styleClass="primary"/><Button text="Изменить" onAction="#editParticipant"/><Button text="Удалить" onAction="#deleteParticipant" styleClass="danger"/></HBox>
+   <TableView fx:id="participantTable" VBox.vgrow="ALWAYS"><columns><TableColumn fx:id="participantIdCol" text="ID" prefWidth="55"/><TableColumn fx:id="participantNameCol" text="ФИО" prefWidth="230"/><TableColumn fx:id="participantEmailCol" text="Email" prefWidth="220"/><TableColumn fx:id="participantOrgCol" text="Организация" prefWidth="190"/><TableColumn fx:id="participantCreatedCol" text="Создан" prefWidth="120"/></columns></TableView>
+  </VBox></Tab>
+  <Tab text="Конференции"><VBox spacing="10"><padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+   <HBox spacing="8"><TextField fx:id="conferenceSearch" promptText="Поиск: название или место" HBox.hgrow="ALWAYS"/><ComboBox fx:id="conferenceTrackFilter" prefWidth="150" promptText="Трек"/><ComboBox fx:id="conferenceSort" prefWidth="150"/><Button text="Добавить" onAction="#addConference" styleClass="primary"/><Button text="Изменить" onAction="#editConference"/><Button text="Удалить" onAction="#deleteConference" styleClass="danger"/></HBox>
+   <TableView fx:id="conferenceTable" VBox.vgrow="ALWAYS"><columns><TableColumn fx:id="conferenceIdCol" text="ID" prefWidth="55"/><TableColumn fx:id="conferenceTitleCol" text="Название" prefWidth="250"/><TableColumn fx:id="conferenceTrackCol" text="Трек" prefWidth="110"/><TableColumn fx:id="conferenceStartCol" text="Начало" prefWidth="110"/><TableColumn fx:id="conferenceEndCol" text="Окончание" prefWidth="110"/><TableColumn fx:id="conferenceLocationCol" text="Место" prefWidth="180"/></columns></TableView>
+  </VBox></Tab>
+  <Tab text="Регистрации"><VBox spacing="10"><padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+   <HBox spacing="8"><TextField fx:id="registrationSearch" promptText="Поиск: участник или конференция" HBox.hgrow="ALWAYS"/><ComboBox fx:id="registrationStatusFilter" prefWidth="145" promptText="Статус"/><ComboBox fx:id="registrationConferenceFilter" prefWidth="210" promptText="Конференция"/><ComboBox fx:id="registrationSort" prefWidth="140"/><Button text="Добавить" onAction="#addRegistration" styleClass="primary"/><Button text="Изменить" onAction="#editRegistration"/><Button text="Удалить" onAction="#deleteRegistration" styleClass="danger"/><Button text="Экспорт XLSX" onAction="#exportRegistrations" styleClass="secondary"/></HBox>
+   <TableView fx:id="registrationTable" VBox.vgrow="ALWAYS"><columns><TableColumn fx:id="registrationIdCol" text="ID" prefWidth="55"/><TableColumn fx:id="registrationParticipantCol" text="Участник" prefWidth="230"/><TableColumn fx:id="registrationConferenceCol" text="Конференция" prefWidth="240"/><TableColumn fx:id="registrationStatusCol" text="Статус" prefWidth="125"/><TableColumn fx:id="registrationDateCol" text="Дата регистрации" prefWidth="170"/></columns></TableView>
+  </VBox></Tab>
+  <Tab text="Статистика"><ScrollPane fitToWidth="true" fitToHeight="true"><VBox spacing="14"><padding><Insets top="24" right="30" bottom="24" left="30"/></padding>
+   <Label text="Статистика системы" styleClass="section-title"/>
+   <GridPane hgap="12" vgap="12"><columnConstraints><ColumnConstraints percentWidth="33.3"/><ColumnConstraints percentWidth="33.3"/><ColumnConstraints percentWidth="33.3"/></columnConstraints>
+    <VBox styleClass="stat-card"><Label text="Участники"/><Label fx:id="statParticipants" text="0" styleClass="stat-value"/></VBox>
+    <VBox styleClass="stat-card" GridPane.columnIndex="1"><Label text="Конференции"/><Label fx:id="statConferences" text="0" styleClass="stat-value"/></VBox>
+    <VBox styleClass="stat-card" GridPane.columnIndex="2"><Label text="Регистрации"/><Label fx:id="statRegistrations" text="0" styleClass="stat-value"/></VBox>
+    <VBox styleClass="stat-card" GridPane.rowIndex="1"><Label text="Активные (подтв. + оплач.)"/><Label fx:id="statActive" text="0" styleClass="stat-value"/></VBox>
+    <VBox styleClass="stat-card" GridPane.columnIndex="1" GridPane.rowIndex="1"><Label text="Посетили"/><Label fx:id="statAttended" text="0" styleClass="stat-value"/></VBox>
+    <VBox styleClass="stat-card" GridPane.columnIndex="2" GridPane.rowIndex="1"><Label text="Отменены"/><Label fx:id="statCancelled" text="0" styleClass="stat-value"/></VBox>
+   </GridPane>
+   <Label text="Регистрации по трекам" styleClass="section-title"/><Label fx:id="statTracks" text="—" wrapText="true" styleClass="track-stats"/>
+   <Button text="Пересчитать" onAction="#refreshStats" styleClass="secondary"/>
+  </VBox></ScrollPane></Tab>
+ </TabPane></center>
+ <bottom><HBox alignment="CENTER_RIGHT"><padding><Insets top="8" right="18" bottom="10" left="18"/></padding><Label text="КР №2 • конференционная регистрация"/></HBox></bottom>
+</BorderPane>
